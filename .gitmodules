@@ -1,0 +1,12 @@
+[submodule "submodules/predef"]
+	path = submodules/predef
+	url = https://github.com/boostorg/predef.git
+[submodule "submodules/cppzmq"]
+	path = submodules/cppzmq
+	url = https://github.com/zeromq/cppzmq.git
+[submodule "submodules/simple-cpp-router"]
+	path = submodules/simple-cpp-router
+	url = https://github.com/qoollo/simple-cpp-router.git
+[submodule "submodules/spdlog"]
+	path = submodules/spdlog
+	url = https://github.com/gabime/spdlog.git
