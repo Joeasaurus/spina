@@ -10,7 +10,7 @@ endif()
 
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/build")
 
-add_library(SPINE OBJECT
+add_library(SPINA OBJECT
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/spina/spina.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/spina/spina_commands.cpp"
 )
@@ -26,9 +26,24 @@ add_library(ROUTING OBJECT
 	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/simple-cpp-router/src/Routing/Details/StringTokenizer.cpp"
 )
 
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/generated")
 include("${CMAKE_SOURCE_DIR}/${CMAKE_SYSTEM_NAME}.cmake")
 
-install(TARGETS ${BINARY_NAME} spina spina-module
+add_executable(spina-example-host
+	$<TARGET_OBJECTS:SPINA>
+	$<TARGET_OBJECTS:SOCKETER>
+	${CMAKE_CURRENT_SOURCE_DIR}/example-host.cpp
+)
+set_target_properties(spina-example-host
+	PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}"
+)
+target_link_libraries(spina-example-host
+	${BOTH_LINK_LIBRARIES}
+	spina
+)
+
+install(TARGETS ${BINARY_NAME} spina spina-module spina-example-host
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib

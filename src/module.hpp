@@ -38,8 +38,8 @@ namespace spina {
 			ModuleInfo __info;
 			URIRouter router;
 
-			bool _withHooks = true;
-			bool registered = false;
+			atomic<bool> _withHooks {true};
+			atomic<bool> registered {false};
 
 		public:
 			Module(string name, string author, bool withHooks = true);

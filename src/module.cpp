@@ -9,7 +9,7 @@ namespace spina {
         __info.author = author;
         timeNow = chrono::system_clock::now();
 		_eventer = new Eventer();
-		if (_withHooks) serviceHooks_Registration();
+		if (_withHooks.load()) serviceHooks_Registration();
     }
 
     Module::~Module(){
@@ -53,10 +53,10 @@ namespace spina {
 	void Module::serviceHooks_Registration() {
 		// Register with the spina
 		router.on("loaded-success", MUri("pidel://spina/module/loaded/:result"), [&](MUri& mu, URIRouter* _rout) {
-			registered = (_rout->getVar("result") == "true");
+			registered.store(_rout->getVar("result") == "true");
 		});
 		_eventer->on("send-registration", [&](chrono::milliseconds) {
-			if (! registered) {
+			if (! registered.load()) {
 				MUri mu("pidel://spina/module/load/" + name());
 				mu.send(_socketer, name());
 			}

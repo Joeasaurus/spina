@@ -59,6 +59,6 @@ namespace spina { namespace messages {
             bool sendMessage(Message& message) const;
 
             template<typename retType>
-            retType recvMessage(function<retType(const Message&)> callback, long timeout=1000);
+            retType recvMessage(function<retType(const Message&)> callback, long timeout=16);
     };
 }}

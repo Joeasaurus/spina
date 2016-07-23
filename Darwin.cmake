@@ -8,8 +8,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 		CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif()
 
-find_package(Boost REQUIRED)
-include_directories("${CMAKE_SOURCE_DIR}/src" "${CMAKE_BINARY_DIR}/generated")
 include_directories(
 	${Boost_INCLUDE_DIRS}
 	"${CMAKE_SOURCE_DIR}/submodules/spdlog/include"
@@ -20,6 +18,8 @@ include_directories(
 )
 
 find_library(LIBZMQ   zmq)
+find_library(BOOSTFS  boost_filesystem-mt)
+find_library(BOOSTSYS boost_system-mt)
 
 set(BOTH_LINK_LIBRARIES
 	${LIBZMQ}
@@ -44,7 +44,7 @@ target_link_libraries(spina-module
 
 add_library(spina
 	$<TARGET_OBJECTS:ROUTING>
-	$<TARGET_OBJECTS:SPINE>
+	$<TARGET_OBJECTS:SPINA>
 )
 set_target_properties(spina
 	PROPERTIES
