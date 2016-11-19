@@ -6,65 +6,48 @@
 #include <mutex>
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 #include <vector>
 
-#include "chain.hpp"
-#include "chainfactory.hpp"
-#include "module.hpp"
-
+#include "Chain.hpp"
+#include "ChainFactory.hpp"
+#include "Module.hpp"
+#include "SignalSlotFactory.hpp"
 
 using namespace cppevent;
 using namespace spina::messages;
 
 namespace spina {
-	
+
 	class Spina : public Module {
-		private:
-			#if BOOST_OS_MACOS
-				string moduleFileExtension = ".dylib";
-			#else
-				#if BOOST_OS_WINDOWS
-					string moduleFileExtension = ".dll";
-				#else // Linux
-					string moduleFileExtension = ".so";
-				#endif
-			#endif
+	private:
+		atomic<bool> _running{false};
+		vector<thread> m_threads;
+		mutex _moduleRegisterMutex; // Protects loadedModules
 
-			atomic<bool> _running{false};
-			vector<thread> m_threads;
-			mutex _moduleRegisterMutex; // Protects loadedModules
-			set<string> _loadedModules;
+		bool isModuleFile(const string& filename);
 
-			map<string, list<unsigned long>> authoredChains;
-			ChainFactory chainFactory;
+	public:
+		static const string moduleFileExtension;
+		SignalSlotFactory sigslot;
+		vector<string> loadedModules;
 
-			set<string> listModuleFiles(const string& directory) const;
-			void listModuleFiles(set<string>& destination, const string& directory) const;
-			bool isModuleFile(const string& filename);
+		Spina();
+		~Spina();
+		void setup(){};
+		void tick();
 
-			bool registerModule(const string& name);
-			bool unregisterModule(const string& name);
+		bool loadModules(const string& directory);
+		bool loadModule(const string& filename, const int& index = 0);
 
-			void hookSocketCommands();
-			void handleCommand(MUri& mu);
-			bool handleOutput(const Message& msg);
+		bool isModuleLoaded(std::string moduleName);
+		bool isRunning();
 
-			void command_moduleLoaded(MUri& mu, map<string, string>& variables);
+		bool registerModule(const string& name);
+		bool unregisterModule(const string& name);
 
-		public:
-			Spina();
-			~Spina();
-			void setup(){};
-			void tick();
-
-			bool loadModules(const string& directory);
-			bool loadModule(const string& filename);
-
-			set<string> loadedModules();
-
-			bool isModuleLoaded(std::string moduleName);
-			bool isRunning();
-
+		static set<string> listModuleFiles(const string& directory);
+		static void listModuleFiles(set<string>& destination, const string& directory);
 	};
 }
 

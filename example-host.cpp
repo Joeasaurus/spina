@@ -31,10 +31,19 @@ int main(int argc, char **argv) {
 
 	Spina spina;
 
+
+
 	if (spina.loadModules(modPath)) {
-		while (spina.isRunning()) {
+		while (true) {
 			try {
-				spina.polltick();
+				// spina.polltick();
+				// this_thread::sleep_for(chrono::seconds(10));
+				this_thread::sleep_for(chrono::seconds(5));
+				spina.sigslot.raise("input", "I told you to do something!");
+				for (int i = 0; i < spina.loadedModules.size(); i++) {
+					logger.log("Main", spina.loadedModules[i] + " is loaded");
+				}
+				this_thread::sleep_for(chrono::seconds(5));
 			} catch (exception& e) {
 				logger.err("Main", string("CAUGHT POLLTICK OF SPINE ") + e.what());
 			}

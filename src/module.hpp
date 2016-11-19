@@ -50,7 +50,7 @@ namespace spina {
 			virtual void setup()=0;
 
 			string name() const;
-			void connectToParent(string parent, const Context& ctx);
+			void setContext(const Context& ctx);
 	};
 }
 

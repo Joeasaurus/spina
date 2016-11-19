@@ -31,7 +31,7 @@ add_library(spina-module
 	$<TARGET_OBJECTS:SOCKETER>
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/uri/uri.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/uri/urirouter.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/module.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/Module.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/logger.cpp"
 )
 set_target_properties(spina-module
@@ -44,7 +44,7 @@ target_link_libraries(spina-module
 
 add_library(spina
 	$<TARGET_OBJECTS:ROUTING>
-	$<TARGET_OBJECTS:SPINA>
+	$<TARGET_OBJECTS:SPINAOBJ>
 )
 set_target_properties(spina
 	PROPERTIES

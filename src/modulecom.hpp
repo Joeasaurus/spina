@@ -4,7 +4,7 @@
 #include <set>
 #include <boost/filesystem.hpp>
 
-#include "module.hpp"
+#include "Module.hpp"
 #include "interfaces/logger.hpp"
 
 using namespace spina::interfaces;
@@ -34,7 +34,7 @@ namespace spina {
 			inline bool loadLibrary();
 			inline void unloadLibrary();
 
-			inline bool initModule(const string& parent, const Context& ctx);
+			inline bool initModule(const Context& ctx);
 			inline void deinitModule();
 
 			inline bool isLoaded() const;
@@ -104,12 +104,13 @@ namespace spina {
 		}
 	};
 
-	bool ModuleCOM::initModule(const string& parent, const Context& ctx) {
+	bool ModuleCOM::initModule(const Context& ctx) {
 		if (!_moduleInit) {
 			module = createModule();
 			if (module) {
 				moduleName = module->name();
-				module->connectToParent(parent, ctx);
+				module->setContext(ctx);
+				module->setup();
 				_moduleInit = true;
 			}
 		}

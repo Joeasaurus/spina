@@ -1,4 +1,4 @@
-#include "module.hpp"
+#include "Module.hpp"
 
 using namespace cppevent;
 
@@ -35,19 +35,19 @@ namespace spina {
 		return this->__info.name;
 	}
 
-	void Module::connectToParent(string parent, const Context& ctx) {
+	void Module::setContext(const Context& ctx) {
 		_socketer = new Socketer(ctx);
-		_socketer->openSockets(name(), parent);
-		_socketer->on("process_command", [&](const Message& message) {
-			try {
-				MUri mu(message.payload());
-				router.emit(mu);
-			} catch (exception& e) {
-				_logger.log(name(), e.what(), true);
-				return false;
-			}
-			return true;
-		});
+		// _socketer->openSockets(name(), parent);
+		// _socketer->on("process_command", [&](const Message& message) {
+		// 	try {
+		// 		MUri mu(message.payload());
+		// 		router.emit(mu);
+		// 	} catch (exception& e) {
+		// 		_logger.log(name(), e.what(), true);
+		// 		return false;
+		// 	}
+		// 	return true;
+		// });
 	}
 
 	void Module::serviceHooks_Registration() {

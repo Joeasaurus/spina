@@ -10,9 +10,9 @@ endif()
 
 set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/build")
 
-add_library(SPINA OBJECT
+add_library(SPINAOBJ OBJECT
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/spina/spina.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/spina/spina_commands.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/SignalSlotFactory.cpp"
 )
 add_library(SOCKETER OBJECT
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/messages/socketer.cpp"
@@ -30,7 +30,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_BINARY_DI
 include("${CMAKE_SOURCE_DIR}/${CMAKE_SYSTEM_NAME}.cmake")
 
 add_executable(spina-example-host
-	$<TARGET_OBJECTS:SPINA>
+	$<TARGET_OBJECTS:SPINAOBJ>
 	$<TARGET_OBJECTS:SOCKETER>
 	${CMAKE_CURRENT_SOURCE_DIR}/example-host.cpp
 )
@@ -50,6 +50,7 @@ install(TARGETS ${BINARY_NAME} spina spina-module spina-example-host
 )
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/" DESTINATION include/spina FILES_MATCHING PATTERN "*.hpp")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/submodules" DESTINATION include/spina FILES_MATCHING PATTERN "*.hpp")
 
 ## cppcheck --force --inline-suppr --template '{file}:{line},{severity},{id},{message}' \
 ##  --xml --enable=all --max-configs=25 -i /Users/jme/GDrive/code/cppmodules/src ./ 2> err.xml
