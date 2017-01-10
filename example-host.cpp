@@ -1,6 +1,9 @@
 #include "spina/spina.hpp"
+#include "ModuleChain.hpp"
 #include "interfaces/logger.hpp"
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 /* NOTES
  * To save space in modules, spina should provide functions for loading files?
@@ -16,40 +19,38 @@ int main(int argc, char **argv) {
 
 	Logger logger;
 	logger.setDebug(true);
-	string modPath = "NONE";
+	string modPath;
 
 	// This is a quick fix for debug logging by managing argv ourselves
 	// We'll move to an option parser later
 	if (argc > 1) {
 		modPath = argv[1];
-	}
-
-	if (modPath == "NONE") {
+	} else {
 		logger.err("[Main]", "You forgot to supply a modules directory!");
+		this_thread::sleep_for(chrono::milliseconds(10));
 		return 1;
 	}
 
 	Spina spina;
-
-
-
-	if (spina.loadModules(modPath)) {
-		while (true) {
-			try {
-				// spina.polltick();
-				// this_thread::sleep_for(chrono::seconds(10));
-				this_thread::sleep_for(chrono::seconds(5));
-				spina.sigslot.raise("input", "I told you to do something!");
-				for (int i = 0; i < spina.loadedModules.size(); i++) {
-					logger.log("Main", spina.loadedModules[i] + " is loaded");
-				}
-				this_thread::sleep_for(chrono::seconds(5));
-			} catch (exception& e) {
-				logger.err("Main", string("CAUGHT POLLTICK OF SPINE ") + e.what());
-			}
-		}
-		return 0;
+	ModuleChain chain;
+	spina.loadModules(modPath);
+	for (auto& module : spina.loadedModules) {
+		chain.addModule(module.second->module);
 	}
 
-	return 1;
+	chain.setModuleOrder({
+		{"output", {1}},
+		{"input", {0}}
+	});
+
+	while (spina.isRunning()) {
+		try {
+			chain.run();
+			this_thread::sleep_for(chrono::milliseconds(5000));
+		} catch (exception& e) {
+			logger.err("Main", string("CAUGHT POLLTICK OF SPINE ") + e.what());
+			this_thread::sleep_for(chrono::milliseconds(10));
+		}
+	}
+	return 0;
 }

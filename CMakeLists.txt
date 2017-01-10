@@ -12,18 +12,6 @@ set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/build")
 
 add_library(SPINAOBJ OBJECT
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/spina/spina.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/SignalSlotFactory.cpp"
-)
-add_library(SOCKETER OBJECT
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/messages/socketer.cpp"
-)
-add_library(ROUTING OBJECT
-	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/simple-cpp-router/src/Routing/Router.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/simple-cpp-router/src/Routing/PathMatch.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/simple-cpp-router/src/Routing/Details/PathTemplate.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/simple-cpp-router/src/Routing/Details/RegexConverter.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/simple-cpp-router/src/Routing/Details/PathTemplateParser.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/simple-cpp-router/src/Routing/Details/StringTokenizer.cpp"
 )
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/generated")
@@ -31,7 +19,6 @@ include("${CMAKE_SOURCE_DIR}/${CMAKE_SYSTEM_NAME}.cmake")
 
 add_executable(spina-example-host
 	$<TARGET_OBJECTS:SPINAOBJ>
-	$<TARGET_OBJECTS:SOCKETER>
 	${CMAKE_CURRENT_SOURCE_DIR}/example-host.cpp
 )
 set_target_properties(spina-example-host

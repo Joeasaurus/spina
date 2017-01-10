@@ -2,6 +2,7 @@
 #include <dlfcn.h>
 #include <string>
 #include <set>
+#include <atomic>
 #include <boost/filesystem.hpp>
 
 #include "Module.hpp"
@@ -10,39 +11,41 @@
 using namespace spina::interfaces;
 
 namespace spina {
-	class ModuleCOM {
+	class ModuleHandler {
 		private:
-			const string name = "ModuleCOM";
+			const string name = "ModuleHandler";
 			string _filename;
 			Logger _logger;
 
-			void* _module_so = nullptr;
-			Module_ctor* createModule = nullptr;
+			void* _module_so            = nullptr;
+			Module_ctor*  createModule  = nullptr;
 			Module_dctor* destroyModule = nullptr;
-
-			bool _moduleLoaded = false;
-			bool _moduleInit   = false;
 
 			inline bool openLibraryFile();
 			inline int  loadLibrarySymbols();
 
 		public:
+			// This is public so Spina can use it nicely.
 			Module* module = nullptr;
-			string moduleName;
+			const ModuleInfo* moduleInfo;
+			
+			atomic<bool> _moduleLoaded{false};
+			atomic<bool> _moduleInit  {false};
 
-			inline ModuleCOM(const string& filename) {_filename = filename;};
+			inline ModuleHandler(const string& filename) {_filename = filename;};
+			//TODO: Deconstructor
 			inline bool loadLibrary();
 			inline void unloadLibrary();
 
-			inline bool initModule(const Context& ctx);
+			inline bool initModule();
 			inline void deinitModule();
 
 			inline bool isLoaded() const;
 	};
 
-	// const string ModuleCOM::name = "ModuleCOM";
+	// const string ModuleHandler::name = "ModuleHandler";
 
-	bool ModuleCOM::openLibraryFile() {
+	bool ModuleHandler::openLibraryFile() {
 		// Here we use dlopen to load the dynamic library (that is, a compiled module)
 		_module_so = dlopen(_filename.c_str(), RTLD_NOW | RTLD_GLOBAL);
 		if (!_module_so) {
@@ -52,7 +55,7 @@ namespace spina {
 		return true;
 	};
 
-	int ModuleCOM::loadLibrarySymbols() {
+	int ModuleHandler::loadLibrarySymbols() {
 		// Here we use dlsym to hook into exported functions of the module
 		// One to load the module class and one to unload it
 		createModule = (Module_ctor*)dlsym(_module_so, "createModule");
@@ -71,7 +74,7 @@ namespace spina {
 		return 0;
 	}
 
-	bool ModuleCOM::loadLibrary() {
+	bool ModuleHandler::loadLibrary() {
 		// In the threads we load the binary and hook into it's exported functions.
 		// We use the load function to create an instance of it's Module-derived class
 		// We then set up an interface with the module using our input/output sockets
@@ -90,42 +93,39 @@ namespace spina {
 		}
 		_logger.log(name, "Functions resolved", true);
 
-		_moduleLoaded = true;
+		_moduleLoaded.store(true);
 		return _moduleLoaded;
 	};
 
-	void ModuleCOM::unloadLibrary() {
-		if (_moduleInit) {
+	void ModuleHandler::unloadLibrary() {
+		if (_moduleInit.load()) {
 			deinitModule();
 		}
 
 		if (dlclose(_module_so) != 0) {
 			_logger.err(name, "Could not dlclose module file");
 		}
+
+		_moduleLoaded.store(false);
 	};
 
-	bool ModuleCOM::initModule(const Context& ctx) {
+	bool ModuleHandler::initModule() {
 		if (!_moduleInit) {
 			module = createModule();
 			if (module) {
-				moduleName = module->name();
-				module->setContext(ctx);
-				module->setup();
-				_moduleInit = true;
+				moduleInfo = module->getinfo();
+				_moduleInit.store(true);
 			}
 		}
 
-		return _moduleInit;
+		return _moduleInit.load();
 	};
 
-	void ModuleCOM::deinitModule() {
-		if (_moduleInit && module) {
+	void ModuleHandler::deinitModule() {
+		if (_moduleInit.load() && module) {
 			delete module;
 			module = nullptr;
+			_moduleInit.store(false);
 		}
 	};
-
-	bool ModuleCOM::isLoaded() const {
-		return _moduleLoaded;
-	}
 }

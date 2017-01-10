@@ -14,7 +14,6 @@ include_directories(
 	#"${CMAKE_SOURCE_DIR}/submodules/catch/single_include"
 	"${CMAKE_SOURCE_DIR}/submodules/cppzmq"
 	"${CMAKE_SOURCE_DIR}/submodules/predef/include"
-	"${CMAKE_SOURCE_DIR}/submodules/simple-cpp-router/src"
 )
 
 find_library(LIBZMQ   zmq)
@@ -22,16 +21,13 @@ find_library(BOOSTFS  boost_filesystem-mt)
 find_library(BOOSTSYS boost_system-mt)
 
 set(BOTH_LINK_LIBRARIES
-	${LIBZMQ}
 )
 
 #### MAIN ####
 add_library(spina-module
-	$<TARGET_OBJECTS:ROUTING>
-	$<TARGET_OBJECTS:SOCKETER>
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/uri/uri.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/uri/urirouter.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/Module.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/ModuleChain.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/ModuleDataMap.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/logger.cpp"
 )
 set_target_properties(spina-module
@@ -43,7 +39,6 @@ target_link_libraries(spina-module
 )
 
 add_library(spina
-	$<TARGET_OBJECTS:ROUTING>
 	$<TARGET_OBJECTS:SPINAOBJ>
 )
 set_target_properties(spina

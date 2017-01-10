@@ -8,46 +8,44 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <future>
 
-#include "Chain.hpp"
-#include "ChainFactory.hpp"
 #include "Module.hpp"
-#include "SignalSlotFactory.hpp"
+#include "ModuleHandler.hpp"
+#include "ModuleDataMap.hpp"
 
-using namespace cppevent;
-using namespace spina::messages;
+using namespace std;
 
 namespace spina {
 
 	class Spina : public Module {
 	private:
 		atomic<bool> _running{false};
-		vector<thread> m_threads;
-		mutex _moduleRegisterMutex; // Protects loadedModules
+		vector<thread> _threads;
+		ModuleDataMap m_datamap;
 
 		bool isModuleFile(const string& filename);
 
 	public:
 		static const string moduleFileExtension;
-		SignalSlotFactory sigslot;
-		vector<string> loadedModules;
+		map<string, unique_ptr<ModuleHandler>> loadedModules;
 
 		Spina();
 		~Spina();
-		void setup(){};
-		void tick();
 
 		bool loadModules(const string& directory);
-		bool loadModule(const string& filename, const int& index = 0);
+		bool loadModule(const string& filename);
 
 		bool isModuleLoaded(std::string moduleName);
 		bool isRunning();
 
-		bool registerModule(const string& name);
+		bool registerModule(unique_ptr<ModuleHandler>& handler);
 		bool unregisterModule(const string& name);
 
 		static set<string> listModuleFiles(const string& directory);
 		static void listModuleFiles(set<string>& destination, const string& directory);
+
+		inline bool run(ModuleDataMap* global_state){return true;};
 	};
 }
 

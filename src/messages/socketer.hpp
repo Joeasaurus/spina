@@ -3,6 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <thread>
+#include <mutex>
 #include <map>
 
 // We have to do some icky things on Windows!
